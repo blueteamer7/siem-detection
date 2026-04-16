@@ -1,0 +1,15 @@
+name: Sync to QRadar
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install requests pyyaml
+      - name: Run Sync Script
+        run: python scripts/qradar_sync.py
