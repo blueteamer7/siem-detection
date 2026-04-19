@@ -4,7 +4,6 @@ import zipfile
 import io
 import urllib3
 
-# SSL xəbərdarlıqlarını söndürürük
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 QRADAR_HOST = os.environ.get('QRADAR_HOST')
@@ -17,7 +16,6 @@ HEADERS = {
 }
 
 def create_extension_zip():
-    """Bütün JSON qaydalarını bir ZIP paketində toplayır"""
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED) as zip_file:
         rule_folder = 'detections/qradar/'
@@ -27,6 +25,16 @@ def create_extension_zip():
             print("❌ Heç bir JSON faylı tapılmadı!")
             return None
             
+        # 📄 Məcburi XML Pasportu (Manifest) yaradırıq
+        xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+        <extension>
+            <name>Zakhra_SIEM_Rules</name>
+            <description>Custom detection rules from GitHub</description>
+            <version>1.0</version>
+        </extension>"""
+        zip_file.writestr('extension.xml', xml_content)
+        print("🎫 extension.xml (Pasport) paketə əlavə edildi.")
+
         for file_name in files:
             file_path = os.path.join(rule_folder, file_name)
             zip_file.write(file_path, arcname=file_name)
@@ -38,21 +46,16 @@ def upload_to_qradar():
     zip_data = create_extension_zip()
     if not zip_data: return
 
-    # QRadar Extension Management Endpoint
     url = f"https://{QRADAR_HOST}/api/config/extension_management/extensions"
-    
-    print(f"🚀 Paket QRadar-a göndərilir: {url}")
-    
     files = {'file': ('rules_pack.zip', zip_data, 'application/zip')}
     
     response = requests.post(url, headers=HEADERS, files=files, verify=False)
 
     if response.status_code in [200, 201, 202]:
-        print("✅ UĞURLU! Qaydalar Extension kimi yükləndi.")
-        print("💡 İndi QRadar panelində 'Admin -> Extension Management' hissəsinə bax.")
+        print("✅ NƏHAYƏT! QRadar paketi qəbul etdi.")
+        print("➡️ İndi QRadar-da Admin -> Extension Management hissəsinə daxil ol və rulları install et.")
     else:
-        print(f"❌ Xəta: {response.status_code}")
-        print(f"Mesaj: {response.text}")
+        print(f"❌ Xəta: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
     upload_to_qradar()
