@@ -18,8 +18,8 @@ def deploy_rule(file_path):
     with open(file_path, 'r') as f:
         rule_data = f.read()
     
-    url = f"https://{QRADAR_HOST}/api/analytics/rules"
-    response = requests.post(url, data=rule_data, headers=HEADERS, verify=False)
+url = f"https://{QRADAR_HOST}/api/analytics/custom_rules"
+response = requests.post(url, data=rule_data, headers=HEADERS, verify=False)
     
     if response.status_code in [200, 201, 202]:
         print(f"✅ Uğurlu: {file_path}")
