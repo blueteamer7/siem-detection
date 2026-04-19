@@ -1,0 +1,6 @@
+{
+  "id": "QRD-001",
+  "name": "LSASS Memory Dumping Detected",
+  "severity": "CRITICAL",
+  "aql": "SELECT QIDNAME(qid) as EventName, sourceIP, destinationIP FROM events WHERE (TargetImage ILIKE '%lsass.exe%') AND (GrantedAccess='0x1fffff')"
+}
