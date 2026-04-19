@@ -4,6 +4,7 @@ import zipfile
 import io
 import urllib3
 
+# SSL xəbərdarlıqlarını söndürürük
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 QRADAR_HOST = os.environ.get('QRADAR_HOST')
@@ -25,15 +26,15 @@ def create_extension_zip():
             print("❌ Heç bir JSON faylı tapılmadı!")
             return None
             
-        # 📄 Məcburi XML Pasportu (Manifest) yaradırıq
-        xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
-        <extension>
-            <name>Zakhra_SIEM_Rules</name>
-            <description>Custom detection rules from GitHub</description>
-            <version>1.0</version>
-        </extension>"""
-        zip_file.writestr('extension.xml', xml_content)
-        print("🎫 extension.xml (Pasport) paketə əlavə edildi.")
+        # 🎫 Rəsmi XML manifesti (namespace əlavə edildi)
+        xml_content = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+        xml_content += '<extension name="Zakhra_Detection_Rules" version="1.0">\n'
+        xml_content += '    <description>Custom SOC Rules from GitHub Pipeline</description>\n'
+        xml_content += '</extension>'
+        
+        # XML-i paketin tam kökünə yerləşdiririk
+        zip_file.writestr('extension.xml', xml_content.strip())
+        print("🎫 extension.xml (Manifest) standartlara uyğunlaşdırıldı.")
 
         for file_name in files:
             file_path = os.path.join(rule_folder, file_name)
@@ -46,16 +47,21 @@ def upload_to_qradar():
     zip_data = create_extension_zip()
     if not zip_data: return
 
+    # Extension Management API ünvanı
     url = f"https://{QRADAR_HOST}/api/config/extension_management/extensions"
+    
+    # ZIP faylını POST edirik
     files = {'file': ('rules_pack.zip', zip_data, 'application/zip')}
     
+    print(f"🚀 Paket QRadar-a (Extension Manager) göndərilir...")
     response = requests.post(url, headers=HEADERS, files=files, verify=False)
 
     if response.status_code in [200, 201, 202]:
-        print("✅ NƏHAYƏT! QRadar paketi qəbul etdi.")
-        print("➡️ İndi QRadar-da Admin -> Extension Management hissəsinə daxil ol və rulları install et.")
+        print("✅ NƏHAYƏT! QRadar paketi uğurla qəbul etdi.")
+        print("➡️ İndi son addım: QRadar Admin -> Extension Management bölməsinə gir və 'Install' düyməsini sıx.")
     else:
-        print(f"❌ Xəta: {response.status_code} - {response.text}")
+        print(f"❌ Xəta: {response.status_code}")
+        print(f"Serverin cavabı: {response.text}")
 
 if __name__ == "__main__":
     upload_to_qradar()
