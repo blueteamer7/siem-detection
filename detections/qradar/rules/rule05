@@ -1,0 +1,6 @@
+{
+  "id": "QRD-005",
+  "name": "Security Log Cleared",
+  "severity": "CRITICAL",
+  "aql": "SELECT QIDNAME(qid) as EventName, sourceIP, username FROM events WHERE qid=5000500"
+}
