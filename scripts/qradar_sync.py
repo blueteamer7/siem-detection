@@ -4,7 +4,6 @@ import zipfile
 import io
 import urllib3
 
-# SSL xəbərdarlıqlarını söndürürük
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 QRADAR_HOST = os.environ.get('QRADAR_HOST')
@@ -22,24 +21,20 @@ def create_extension_zip():
         rule_folder = 'detections/qradar/'
         files = [f for f in os.listdir(rule_folder) if f.endswith('.json')]
         
-        if not files:
-            print("❌ Fayl tapılmadı!")
-            return None
+        if not files: return None
             
-        # 🎫 ƏN STABİL XML MANİFESTİ (Minimalist və dəqiq)
+        # 🎫 ƏN RƏSMİ MANİFEST FORMATI
         xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
-        xml_content += '<extension name="ZakhraSOC" version="1.0">\n'
+        xml_content += '<extension name="ZakhraSOCRules" version="1.0">\n'
         xml_content += '    <description>SOC Detection Rules</description>\n'
         xml_content += '</extension>'
         
-        # Manifest mütləq ZIP-in kökündə olmalıdır
+        # Məcburi: extension.xml mütləq ZIP-in kökündə olmalıdır
         zip_file.writestr('extension.xml', xml_content)
-        print("🎫 extension.xml yaradıldı.")
-
+        
         for file_name in files:
             file_path = os.path.join(rule_folder, file_name)
             zip_file.write(file_path, arcname=file_name)
-            print(f"📦 Əlavə edildi: {file_name}")
             
     return zip_buffer.getvalue()
 
@@ -48,10 +43,10 @@ def upload_to_qradar():
     if not zip_data: return
 
     url = f"https://{QRADAR_HOST}/api/config/extension_management/extensions"
-    files = {'file': ('rules_pack.zip', zip_data, 'application/zip')}
+    files = {'file': ('ZakhraSOC.zip', zip_data, 'application/zip')}
     
-    print(f"🚀 Paket QRadar-a göndərilir...")
-    response = requests.post(url, headers=HEADERS, files=files, verify=False)
+    # timeout əlavə edirik ki, asılıb qalmasın
+    response = requests.post(url, headers=HEADERS, files=files, verify=False, timeout=30)
 
     if response.status_code in [200, 201, 202]:
         print("✅ NƏHAYƏT! QRadar paketi qəbul etdi.")
