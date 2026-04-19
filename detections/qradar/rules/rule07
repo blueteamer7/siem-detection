@@ -1,0 +1,6 @@
+{
+  "id": "QRD-007",
+  "name": "New Account Added to Admin",
+  "severity": "CRITICAL",
+  "aql": "SELECT username, \"Target Account\" FROM events WHERE qid=5000866 AND \"Target Account\" IN (SELECT \"Target Account\" FROM events WHERE qid=5000810)"
+}
