@@ -1,0 +1,6 @@
+{
+  "id": "QRD-009",
+  "name": "Recon Followed by Privileged Action",
+  "severity": "HIGH",
+  "aql": "SELECT sourceIP, username FROM events WHERE qid=5000866 AND sourceIP IN (SELECT sourceIP FROM events WHERE \"Process Name\" ILIKE '%net.exe%' OR \"Process Name\" ILIKE '%whoami.exe%')"
+}
