@@ -23,13 +23,15 @@ def create_extension_zip():
         
         if not files: return None
             
-        # 🎫 ƏN RƏSMİ MANİFEST FORMATI
-        xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
-        xml_content += '<extension name="ZakhraSOCRules" version="1.0">\n'
-        xml_content += '    <description>SOC Detection Rules</description>\n'
-        xml_content += '</extension>'
+        # 🎫 QRadar 7.5.0+ Üçün Ən Rəsmi Manifest Formati
+        xml_content = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<extension name="Zakhra_SIEM_Rules" version="1.0" xmlns="http://www.ibm.com/qradar/extension">\n'
+            '    <description>Custom SOC Detection Rules</description>\n'
+            '</extension>'
+        )
         
-        # Məcburi: extension.xml mütləq ZIP-in kökündə olmalıdır
+        # Manifest mütləq kökdə olmalıdır
         zip_file.writestr('extension.xml', xml_content)
         
         for file_name in files:
@@ -43,9 +45,8 @@ def upload_to_qradar():
     if not zip_data: return
 
     url = f"https://{QRADAR_HOST}/api/config/extension_management/extensions"
-    files = {'file': ('ZakhraSOC.zip', zip_data, 'application/zip')}
+    files = {'file': ('rules.zip', zip_data, 'application/zip')}
     
-    # timeout əlavə edirik ki, asılıb qalmasın
     response = requests.post(url, headers=HEADERS, files=files, verify=False, timeout=30)
 
     if response.status_code in [200, 201, 202]:
