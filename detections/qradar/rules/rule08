@@ -1,0 +1,6 @@
+{
+  "id": "QRD-008",
+  "name": "Multiple RDP Logins Detected",
+  "severity": "HIGH",
+  "aql": "SELECT username, count(distinct destinationIP) as HostCount FROM events WHERE \"Logon Type\"=10 GROUP BY username HAVING HostCount > 3"
+}
