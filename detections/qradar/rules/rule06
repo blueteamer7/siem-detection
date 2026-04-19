@@ -1,0 +1,6 @@
+{
+  "id": "QRD-006",
+  "name": "Privileged Group Change",
+  "severity": "HIGH",
+  "aql": "SELECT \"Target User\", \"Member Name\", sourceIP FROM events WHERE qid=5000866"
+}
