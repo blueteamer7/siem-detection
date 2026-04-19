@@ -1,0 +1,6 @@
+{
+  "id": "QRD-003",
+  "name": "RDP Brute Force External",
+  "severity": "HIGH",
+  "aql": "SELECT count(*) as FailCount, sourceIP FROM events WHERE qid=5000851 AND \"Logon Type\"=10 GROUP BY sourceIP HAVING FailCount > 10"
+}
