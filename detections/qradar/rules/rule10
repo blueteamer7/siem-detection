@@ -1,0 +1,6 @@
+{
+  "id": "QRD-010",
+  "name": "Web Server Spawning Shell",
+  "severity": "CRITICAL",
+  "aql": "SELECT \"Parent Process Name\", \"Process Name\", sourceIP FROM events WHERE (\"Parent Process Name\" ILIKE '%w3wp.exe%' OR \"Parent Process Name\" ILIKE '%nginx%') AND (\"Process Name\" ILIKE '%cmd.exe%' OR \"Process Name\" ILIKE '%/bin/bash%')"
+}
