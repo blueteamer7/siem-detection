@@ -23,23 +23,23 @@ def create_extension_zip():
         files = [f for f in os.listdir(rule_folder) if f.endswith('.json')]
         
         if not files:
-            print("❌ Heç bir JSON faylı tapılmadı!")
+            print("❌ Fayl tapılmadı!")
             return None
             
-        # 🎫 Rəsmi XML manifesti (namespace əlavə edildi)
-        xml_content = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
-        xml_content += '<extension name="Zakhra_Detection_Rules" version="1.0">\n'
-        xml_content += '    <description>Custom SOC Rules from GitHub Pipeline</description>\n'
+        # 🎫 ƏN STABİL XML MANİFESTİ (Minimalist və dəqiq)
+        xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml_content += '<extension name="ZakhraSOC" version="1.0">\n'
+        xml_content += '    <description>SOC Detection Rules</description>\n'
         xml_content += '</extension>'
         
-        # XML-i paketin tam kökünə yerləşdiririk
-        zip_file.writestr('extension.xml', xml_content.strip())
-        print("🎫 extension.xml (Manifest) standartlara uyğunlaşdırıldı.")
+        # Manifest mütləq ZIP-in kökündə olmalıdır
+        zip_file.writestr('extension.xml', xml_content)
+        print("🎫 extension.xml yaradıldı.")
 
         for file_name in files:
             file_path = os.path.join(rule_folder, file_name)
             zip_file.write(file_path, arcname=file_name)
-            print(f"📦 Paketə əlavə edildi: {file_name}")
+            print(f"📦 Əlavə edildi: {file_name}")
             
     return zip_buffer.getvalue()
 
@@ -47,21 +47,16 @@ def upload_to_qradar():
     zip_data = create_extension_zip()
     if not zip_data: return
 
-    # Extension Management API ünvanı
     url = f"https://{QRADAR_HOST}/api/config/extension_management/extensions"
-    
-    # ZIP faylını POST edirik
     files = {'file': ('rules_pack.zip', zip_data, 'application/zip')}
     
-    print(f"🚀 Paket QRadar-a (Extension Manager) göndərilir...")
+    print(f"🚀 Paket QRadar-a göndərilir...")
     response = requests.post(url, headers=HEADERS, files=files, verify=False)
 
     if response.status_code in [200, 201, 202]:
-        print("✅ NƏHAYƏT! QRadar paketi uğurla qəbul etdi.")
-        print("➡️ İndi son addım: QRadar Admin -> Extension Management bölməsinə gir və 'Install' düyməsini sıx.")
+        print("✅ NƏHAYƏT! QRadar paketi qəbul etdi.")
     else:
-        print(f"❌ Xəta: {response.status_code}")
-        print(f"Serverin cavabı: {response.text}")
+        print(f"❌ Xəta: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
     upload_to_qradar()
