@@ -1,0 +1,6 @@
+{
+  "id": "QRD-004",
+  "name": "Brute Force Followed by Success",
+  "severity": "CRITICAL",
+  "aql": "SELECT username, sourceIP FROM events WHERE qid=5000847 AND sourceIP IN (SELECT sourceIP FROM events WHERE qid=5000851 GROUP BY sourceIP HAVING count(*) > 5)"
+}
