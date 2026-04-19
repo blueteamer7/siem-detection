@@ -1,0 +1,6 @@
+{
+  "id": "QRD-002",
+  "name": "Suspicious PowerShell Execution",
+  "severity": "HIGH",
+  "aql": "SELECT \"Process Command Line\", sourceIP FROM events WHERE \"Process Name\" ILIKE '%powershell.exe%' AND (\"Process Command Line\" ILIKE '%-enc%' OR \"Process Command Line\" ILIKE '%-nop%')"
+}
